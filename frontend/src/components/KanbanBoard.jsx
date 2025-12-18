@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { tasksAPI } from '../services/api';
 import TaskCard from './TaskCard';
+import TaskForm from './TaskForm';
 
 const KanbanBoard = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   const columns = [
     { id: 'todo', title: 'To Do', status: 'todo' },
@@ -37,8 +40,22 @@ const KanbanBoard = () => {
   };
 
   const handleTaskClick = (task) => {
-    // Task click handler - will be enhanced in future commits with edit functionality
-    console.log('Task clicked:', task);
+    setSelectedTask(task);
+    setShowForm(true);
+  };
+
+  const handleCreateTask = () => {
+    setSelectedTask(null);
+    setShowForm(true);
+  };
+
+  const handleFormClose = () => {
+    setShowForm(false);
+    setSelectedTask(null);
+  };
+
+  const handleFormSuccess = () => {
+    fetchTasks(); // Refresh tasks after create/update
   };
 
   const handleDragEnd = async (result) => {
@@ -115,9 +132,17 @@ const KanbanBoard = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-semibold text-gray-800">Kanban Board</h2>
-          <span className="text-sm text-gray-500">
-            {totalTasks} {totalTasks === 1 ? 'task' : 'tasks'}
-          </span>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-500">
+              {totalTasks} {totalTasks === 1 ? 'task' : 'tasks'}
+            </span>
+            <button
+              onClick={handleCreateTask}
+              className="btn btn-primary"
+            >
+              + New Task
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -187,6 +212,14 @@ const KanbanBoard = () => {
           })}
         </div>
       </div>
+
+      {showForm && (
+        <TaskForm
+          task={selectedTask}
+          onClose={handleFormClose}
+          onSuccess={handleFormSuccess}
+        />
+      )}
     </DragDropContext>
   );
 };

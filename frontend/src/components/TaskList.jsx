@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { tasksAPI } from '../services/api';
 import { format } from 'date-fns';
+import TaskForm from './TaskForm';
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
     fetchTasks();
@@ -52,6 +55,25 @@ const TaskList = () => {
     return new Date(dueDate) < new Date();
   };
 
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+    setShowForm(true);
+  };
+
+  const handleCreateTask = () => {
+    setSelectedTask(null);
+    setShowForm(true);
+  };
+
+  const handleFormClose = () => {
+    setShowForm(false);
+    setSelectedTask(null);
+  };
+
+  const handleFormSuccess = () => {
+    fetchTasks(); // Refresh tasks after create/update
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -87,16 +109,25 @@ const TaskList = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-gray-800">Tasks</h2>
-        <span className="text-sm text-gray-500">
-          {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
-        </span>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-500">
+            {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+          </span>
+          <button
+            onClick={handleCreateTask}
+            className="btn btn-primary"
+          >
+            + New Task
+          </button>
+        </div>
       </div>
 
       <div className="grid gap-4">
         {tasks.map((task) => (
           <div
             key={task.id}
-            className="card hover:shadow-md transition-shadow duration-200"
+            className="card hover:shadow-md transition-shadow duration-200 cursor-pointer"
+            onClick={() => handleTaskClick(task)}
           >
             <div className="flex justify-between items-start">
               <div className="flex-1">
@@ -136,6 +167,14 @@ const TaskList = () => {
           </div>
         ))}
       </div>
+
+      {showForm && (
+        <TaskForm
+          task={selectedTask}
+          onClose={handleFormClose}
+          onSuccess={handleFormSuccess}
+        />
+      )}
     </div>
   );
 };
