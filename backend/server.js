@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { errorHandler } from './middleware/errorHandler.js';
 import taskRoutes from './routes/taskRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -26,6 +27,7 @@ app.get('/api/health', (req, res) => {
 
 // API routes
 app.use('/api/tasks', taskRoutes);
+app.use('/api/ai', aiRoutes);
 
 // API info route
 app.get('/api', (req, res) => {
@@ -34,7 +36,8 @@ app.get('/api', (req, res) => {
     version: '1.0.0',
     endpoints: {
       health: '/api/health',
-      tasks: '/api/tasks'
+      tasks: '/api/tasks',
+      ai: '/api/ai'
     }
   });
 });
