@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import TaskList from './components/TaskList';
 
 function App() {
   return (
@@ -15,16 +16,7 @@ function App() {
         <Routes>
           <Route 
             path="/" 
-            element={
-              <div className="text-center py-12">
-                <h2 className="text-3xl font-semibold text-gray-800 mb-4">
-                  Welcome to AI Task Manager
-                </h2>
-                <p className="text-gray-600">
-                  Frontend setup complete. Components will be added in subsequent commits.
-                </p>
-              </div>
-            } 
+            element={<TaskList />} 
           />
         </Routes>
       </main>
