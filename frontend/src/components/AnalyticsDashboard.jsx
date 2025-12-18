@@ -112,16 +112,16 @@ const AnalyticsDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold text-gray-800">Analytics Dashboard</h2>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">Analytics Dashboard</h2>
         <button onClick={fetchTasks} className="btn btn-secondary text-sm">
           Refresh
         </button>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="card">
           <div className="text-sm text-gray-600 mb-1">Total Tasks</div>
           <div className="text-3xl font-bold text-gray-900">{statistics.total}</div>
@@ -143,11 +143,11 @@ const AnalyticsDashboard = () => {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Status Distribution - Pie Chart */}
         <div className="card">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Tasks by Status</h3>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <PieChart>
               <Pie
                 data={statusChartData}
@@ -171,7 +171,7 @@ const AnalyticsDashboard = () => {
         {/* Priority Distribution - Pie Chart */}
         <div className="card">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Tasks by Priority</h3>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <PieChart>
               <Pie
                 data={priorityChartData}
@@ -209,7 +209,7 @@ const AnalyticsDashboard = () => {
       </div>
 
       {/* Additional Insights */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <div className="card">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Task Breakdown</h3>
           <div className="space-y-3">

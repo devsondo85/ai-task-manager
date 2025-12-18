@@ -138,10 +138,10 @@ const TaskForm = ({ task = null, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-          <h2 className="text-2xl font-semibold text-gray-900">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+          <h2 className="text-lg sm:text-2xl font-semibold text-gray-900">
             {isEditMode ? 'Edit Task' : 'Create New Task'}
           </h2>
           <button
@@ -153,7 +153,7 @@ const TaskForm = ({ task = null, onClose, onSuccess }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {errors.submit && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-red-800 text-sm">{errors.submit}</p>
@@ -282,7 +282,7 @@ const TaskForm = ({ task = null, onClose, onSuccess }) => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
                 Status
@@ -318,7 +318,7 @@ const TaskForm = ({ task = null, onClose, onSuccess }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label htmlFor="due_date" className="block text-sm font-medium text-gray-700 mb-2">
                 Due Date
@@ -353,18 +353,18 @@ const TaskForm = ({ task = null, onClose, onSuccess }) => {
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="btn btn-secondary"
+              className="btn btn-secondary order-2 sm:order-1"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary order-1 sm:order-2"
               disabled={loading}
             >
               {loading ? 'Saving...' : isEditMode ? 'Update Task' : 'Create Task'}

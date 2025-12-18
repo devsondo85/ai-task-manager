@@ -146,16 +146,16 @@ const KanbanBoard = () => {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold text-gray-800">Kanban Board</h2>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+          <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">Kanban Board</h2>
+          <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+            <span className="text-xs sm:text-sm text-gray-500">
               {filteredCount} of {totalTasks} {totalTasks === 1 ? 'task' : 'tasks'}
             </span>
             <button
               onClick={handleCreateTask}
-              className="btn btn-primary"
+              className="btn btn-primary text-sm sm:text-base flex-1 sm:flex-none"
             >
               + New Task
             </button>
@@ -172,7 +172,7 @@ const KanbanBoard = () => {
           onClearFilters={handleClearFilters}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           {columns.map((column) => {
             const columnTasks = getTasksByStatus(column.status);
             const taskCount = columnTasks.length;
@@ -190,13 +190,13 @@ const KanbanBoard = () => {
 
                 <Droppable droppableId={column.id}>
                   {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`bg-gray-50 rounded-b-lg p-4 min-h-[400px] max-h-[600px] overflow-y-auto ${
-                        snapshot.isDraggingOver ? 'bg-gray-100' : ''
-                      }`}
-                    >
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className={`bg-gray-50 rounded-b-lg p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] max-h-[500px] sm:max-h-[600px] overflow-y-auto ${
+                  snapshot.isDraggingOver ? 'bg-gray-100' : ''
+                }`}
+              >
                       {taskCount === 0 ? (
                         <div className="text-center text-gray-400 text-sm py-8">
                           {snapshot.isDraggingOver ? 'Drop here' : 'No tasks'}

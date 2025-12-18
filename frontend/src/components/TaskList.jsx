@@ -98,15 +98,15 @@ const TaskList = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">Tasks</h2>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-500">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">Tasks</h2>
+        <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+          <span className="text-xs sm:text-sm text-gray-500">
             {filteredTasks.length} of {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
           </span>
           <button
             onClick={handleCreateTask}
-            className="btn btn-primary"
+            className="btn btn-primary text-sm sm:text-base flex-1 sm:flex-none"
           >
             + New Task
           </button>
