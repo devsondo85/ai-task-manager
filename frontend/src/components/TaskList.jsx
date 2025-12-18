@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { tasksAPI } from '../services/api';
-import { format } from 'date-fns';
+import { getPriorityConfig } from '../utils/priorityUtils';
+import { getDueDateStatus, getDueDateColor, formatDueDate } from '../utils/dateUtils';
 import TaskForm from './TaskForm';
 
 const TaskList = () => {
@@ -28,32 +29,6 @@ const TaskList = () => {
     }
   };
 
-  const getPriorityBadgeClass = (priority) => {
-    switch (priority) {
-      case 'high':
-        return 'badge badge-high';
-      case 'medium':
-        return 'badge badge-medium';
-      case 'low':
-        return 'badge badge-low';
-      default:
-        return 'badge badge-medium';
-    }
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'No due date';
-    try {
-      return format(new Date(dateString), 'MMM dd, yyyy');
-    } catch {
-      return dateString;
-    }
-  };
-
-  const isOverdue = (dueDate) => {
-    if (!dueDate) return false;
-    return new Date(dueDate) < new Date();
-  };
 
   const handleTaskClick = (task) => {
     setSelectedTask(task);
@@ -123,49 +98,57 @@ const TaskList = () => {
       </div>
 
       <div className="grid gap-4">
-        {tasks.map((task) => (
-          <div
-            key={task.id}
-            className="card hover:shadow-md transition-shadow duration-200 cursor-pointer"
-            onClick={() => handleTaskClick(task)}
-          >
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {task.title}
-                  </h3>
-                  <span className={getPriorityBadgeClass(task.priority)}>
-                    {task.priority}
-                  </span>
-                </div>
+        {tasks.map((task) => {
+          const priorityConfig = getPriorityConfig(task.priority);
+          const dueDateStatus = getDueDateStatus(task.due_date);
+          const dueDateColor = getDueDateColor(task.due_date);
 
-                {task.description && (
-                  <p className="text-gray-600 mb-3 line-clamp-2">
-                    {task.description}
-                  </p>
-                )}
+          return (
+            <div
+              key={task.id}
+              className={`card border-l-4 ${priorityConfig.borderColor} hover:shadow-md transition-shadow duration-200 cursor-pointer`}
+              onClick={() => handleTaskClick(task)}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {task.title}
+                    </h3>
+                    <span className={priorityConfig.badgeClass}>
+                      {priorityConfig.icon} {priorityConfig.label}
+                    </span>
+                  </div>
 
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  <span className="capitalize">
-                    Status: <span className="font-medium">{task.status.replace('_', ' ')}</span>
-                  </span>
-                  {task.due_date && (
-                    <span className={isOverdue(task.due_date) ? 'text-red-600 font-medium' : ''}>
-                      Due: {formatDate(task.due_date)}
-                      {isOverdue(task.due_date) && ' (Overdue)'}
-                    </span>
+                  {task.description && (
+                    <p className="text-gray-600 mb-3 line-clamp-2">
+                      {task.description}
+                    </p>
                   )}
-                  {task.estimated_time && (
-                    <span>
-                      Est: {Math.floor(task.estimated_time / 60)}h {task.estimated_time % 60}m
+
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="text-gray-500 capitalize">
+                      Status: <span className="font-medium">{task.status.replace('_', ' ')}</span>
                     </span>
-                  )}
+                    {task.due_date ? (
+                      <span className={dueDateColor}>
+                        📅 {dueDateStatus.label}
+                        {dueDateStatus.status === 'overdue' && ' ⚠️'}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">No due date</span>
+                    )}
+                    {task.estimated_time && (
+                      <span className="text-gray-500">
+                        ⏱️ {Math.floor(task.estimated_time / 60)}h {task.estimated_time % 60}m
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {showForm && (
