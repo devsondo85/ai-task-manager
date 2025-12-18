@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { errorHandler } from './middleware/errorHandler.js';
+import taskRoutes from './routes/taskRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -23,13 +24,17 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// API routes will be added in subsequent commits
+// API routes
+app.use('/api/tasks', taskRoutes);
+
+// API info route
 app.get('/api', (req, res) => {
   res.json({ 
     message: 'AI Task Manager API',
     version: '1.0.0',
     endpoints: {
-      health: '/api/health'
+      health: '/api/health',
+      tasks: '/api/tasks'
     }
   });
 });
