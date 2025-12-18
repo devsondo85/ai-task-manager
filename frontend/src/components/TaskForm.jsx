@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { tasksAPI } from '../services/api';
+import { tasksAPI, aiAPI } from '../services/api';
 
 const TaskForm = ({ task = null, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -13,6 +13,9 @@ const TaskForm = ({ task = null, onClose, onSuccess }) => {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState(null);
+  const [showAiSuggestions, setShowAiSuggestions] = useState(false);
 
   const isEditMode = !!task;
 
@@ -57,6 +60,42 @@ const TaskForm = ({ task = null, onClose, onSuccess }) => {
         ...prev,
         [name]: undefined,
       }));
+    }
+  };
+
+  const handleGetAISuggestions = async () => {
+    if (!formData.description.trim()) {
+      setErrors({ description: 'Please enter a description to get AI suggestions' });
+      return;
+    }
+
+    setAiLoading(true);
+    setErrors({});
+    try {
+      const response = await aiAPI.getAllSuggestions(
+        formData.description,
+        formData.due_date || null
+      );
+      setAiSuggestions(response);
+      setShowAiSuggestions(true);
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to get AI suggestions';
+      setErrors({ ai: errorMessage });
+      console.error('Error getting AI suggestions:', err);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleApplyPriority = () => {
+    if (aiSuggestions?.priority) {
+      setFormData((prev) => ({ ...prev, priority: aiSuggestions.priority }));
+    }
+  };
+
+  const handleApplyTimeEstimate = () => {
+    if (aiSuggestions?.estimated_time) {
+      setFormData((prev) => ({ ...prev, estimated_time: aiSuggestions.estimated_time.toString() }));
     }
   };
 
@@ -141,9 +180,25 @@ const TaskForm = ({ task = null, onClose, onSuccess }) => {
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              Description
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
+              {!isEditMode && formData.description.trim() && (
+                <button
+                  type="button"
+                  onClick={handleGetAISuggestions}
+                  disabled={aiLoading}
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                >
+                  {aiLoading ? (
+                    <>⏳ Getting AI suggestions...</>
+                  ) : (
+                    <>✨ Get AI Suggestions</>
+                  )}
+                </button>
+              )}
+            </div>
             <textarea
               id="description"
               name="description"
@@ -153,7 +208,79 @@ const TaskForm = ({ task = null, onClose, onSuccess }) => {
               className="input"
               placeholder="Enter task description"
             />
+            {errors.description && (
+              <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+            )}
+            {errors.ai && (
+              <p className="mt-1 text-sm text-red-600">{errors.ai}</p>
+            )}
           </div>
+
+          {/* AI Suggestions */}
+          {showAiSuggestions && aiSuggestions && (
+            <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-primary-900">✨ AI Suggestions</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowAiSuggestions(false)}
+                  className="text-primary-600 hover:text-primary-700 text-sm"
+                >
+                  Hide
+                </button>
+              </div>
+
+              {/* Priority Suggestion */}
+              {aiSuggestions.priority && (
+                <div className="flex items-center justify-between bg-white rounded p-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Suggested Priority:</p>
+                    <p className="text-sm text-gray-600 capitalize">{aiSuggestions.priority}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleApplyPriority}
+                    className="btn btn-primary text-xs px-3 py-1"
+                  >
+                    Apply
+                  </button>
+                </div>
+              )}
+
+              {/* Time Estimate */}
+              {aiSuggestions.estimated_time && (
+                <div className="flex items-center justify-between bg-white rounded p-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Estimated Time:</p>
+                    <p className="text-sm text-gray-600">
+                      {aiSuggestions.estimated_time_display} ({aiSuggestions.estimated_time} minutes)
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleApplyTimeEstimate}
+                    className="btn btn-primary text-xs px-3 py-1"
+                  >
+                    Apply
+                  </button>
+                </div>
+              )}
+
+              {/* Task Breakdown */}
+              {aiSuggestions.subtasks && aiSuggestions.subtasks.length > 0 && (
+                <div className="bg-white rounded p-3">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Suggested Subtasks:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {aiSuggestions.subtasks.map((subtask, index) => (
+                      <li key={index} className="text-sm text-gray-600">
+                        {subtask.title}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>

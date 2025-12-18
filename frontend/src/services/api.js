@@ -47,5 +47,32 @@ export const tasksAPI = {
   },
 };
 
+// AI API
+export const aiAPI = {
+  // Get task breakdown
+  getBreakdown: async (description) => {
+    const response = await api.post('/ai/breakdown', { description });
+    return response.data;
+  },
+
+  // Get priority suggestion
+  getPriority: async (description, dueDate = null) => {
+    const response = await api.post('/ai/priority', { description, due_date: dueDate });
+    return response.data;
+  },
+
+  // Get time estimate
+  getTimeEstimate: async (description) => {
+    const response = await api.post('/ai/time-estimate', { description });
+    return response.data;
+  },
+
+  // Get all suggestions at once
+  getAllSuggestions: async (description, dueDate = null) => {
+    const response = await api.post('/ai/suggestions', { description, due_date: dueDate });
+    return response.data;
+  },
+};
+
 export default api;
 
