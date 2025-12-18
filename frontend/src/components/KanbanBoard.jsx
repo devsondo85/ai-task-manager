@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { tasksAPI } from '../services/api';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
+import SearchAndFilter from './SearchAndFilter';
+import { applyFilters } from '../utils/filterUtils';
 
 const KanbanBoard = () => {
   const [tasks, setTasks] = useState([]);
@@ -10,6 +12,9 @@ const KanbanBoard = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
 
   const columns = [
     { id: 'todo', title: 'To Do', status: 'todo' },
@@ -35,8 +40,19 @@ const KanbanBoard = () => {
     }
   };
 
+  // Apply filters to tasks
+  const filteredTasks = useMemo(() => {
+    return applyFilters(tasks, { searchQuery, statusFilter, priorityFilter });
+  }, [tasks, searchQuery, statusFilter, priorityFilter]);
+
   const getTasksByStatus = (status) => {
-    return tasks.filter((task) => task.status === status);
+    return filteredTasks.filter((task) => task.status === status);
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('');
+    setPriorityFilter('');
   };
 
   const handleTaskClick = (task) => {
@@ -126,6 +142,7 @@ const KanbanBoard = () => {
   }
 
   const totalTasks = tasks.length;
+  const filteredCount = filteredTasks.length;
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
@@ -134,7 +151,7 @@ const KanbanBoard = () => {
           <h2 className="text-2xl font-semibold text-gray-800">Kanban Board</h2>
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-500">
-              {totalTasks} {totalTasks === 1 ? 'task' : 'tasks'}
+              {filteredCount} of {totalTasks} {totalTasks === 1 ? 'task' : 'tasks'}
             </span>
             <button
               onClick={handleCreateTask}
@@ -144,6 +161,16 @@ const KanbanBoard = () => {
             </button>
           </div>
         </div>
+
+        <SearchAndFilter
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          priorityFilter={priorityFilter}
+          onPriorityFilterChange={setPriorityFilter}
+          onClearFilters={handleClearFilters}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {columns.map((column) => {

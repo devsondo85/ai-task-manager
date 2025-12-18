@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { tasksAPI } from '../services/api';
 import { getPriorityConfig } from '../utils/priorityUtils';
 import { getDueDateStatus, getDueDateColor, formatDueDate } from '../utils/dateUtils';
+import { applyFilters } from '../utils/filterUtils';
 import TaskForm from './TaskForm';
+import SearchAndFilter from './SearchAndFilter';
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -10,6 +12,9 @@ const TaskList = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
 
   useEffect(() => {
     fetchTasks();
@@ -49,6 +54,17 @@ const TaskList = () => {
     fetchTasks(); // Refresh tasks after create/update
   };
 
+  // Apply filters to tasks
+  const filteredTasks = useMemo(() => {
+    return applyFilters(tasks, { searchQuery, statusFilter, priorityFilter });
+  }, [tasks, searchQuery, statusFilter, priorityFilter]);
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('');
+    setPriorityFilter('');
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -86,7 +102,7 @@ const TaskList = () => {
         <h2 className="text-2xl font-semibold text-gray-800">Tasks</h2>
         <div className="flex items-center gap-4">
           <span className="text-sm text-gray-500">
-            {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+            {filteredTasks.length} of {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
           </span>
           <button
             onClick={handleCreateTask}
@@ -97,8 +113,29 @@ const TaskList = () => {
         </div>
       </div>
 
-      <div className="grid gap-4">
-        {tasks.map((task) => {
+      <SearchAndFilter
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        priorityFilter={priorityFilter}
+        onPriorityFilterChange={setPriorityFilter}
+        onClearFilters={handleClearFilters}
+      />
+
+      {filteredTasks.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg">No tasks match your filters</p>
+          <button
+            onClick={handleClearFilters}
+            className="text-primary-600 hover:text-primary-700 mt-2"
+          >
+            Clear filters
+          </button>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {filteredTasks.map((task) => {
           const priorityConfig = getPriorityConfig(task.priority);
           const dueDateStatus = getDueDateStatus(task.due_date);
           const dueDateColor = getDueDateColor(task.due_date);
@@ -149,7 +186,8 @@ const TaskList = () => {
             </div>
           );
         })}
-      </div>
+        </div>
+      )}
 
       {showForm && (
         <TaskForm
