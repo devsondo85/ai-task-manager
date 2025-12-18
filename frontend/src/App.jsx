@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import TaskList from './components/TaskList';
+import KanbanBoard from './components/KanbanBoard';
 
 function App() {
   return (
@@ -16,6 +17,10 @@ function App() {
         <Routes>
           <Route 
             path="/" 
+            element={<KanbanBoard />} 
+          />
+          <Route 
+            path="/list" 
             element={<TaskList />} 
           />
         </Routes>
