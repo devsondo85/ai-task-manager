@@ -6,6 +6,13 @@ import { supabase } from '../config/database.js';
  */
 export const getAllTasks = async (req, res, next) => {
   try {
+    if (!supabase) {
+      return res.status(503).json({
+        success: false,
+        error: 'Database not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY in .env file.'
+      });
+    }
+
     const { status, priority } = req.query;
     
     let query = supabase.from('tasks').select('*').order('created_at', { ascending: false });

@@ -4,22 +4,25 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Validate environment variables
-if (!process.env.SUPABASE_URL) {
-  throw new Error('SUPABASE_URL environment variable is required');
-}
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
-if (!process.env.SUPABASE_ANON_KEY) {
-  throw new Error('SUPABASE_ANON_KEY environment variable is required');
-}
-
-// Create Supabase client
-export const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
+// Create Supabase client (only if credentials are provided)
+export const supabase = (supabaseUrl && supabaseKey && 
+  supabaseUrl !== 'your_supabase_url_here' && 
+  supabaseKey !== 'your_supabase_anon_key_here')
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 // Test database connection
 export const testConnection = async () => {
+  if (!supabase) {
+    return { 
+      connected: false, 
+      message: 'Database not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY in .env file.' 
+    };
+  }
+
   try {
     const { data, error } = await supabase.from('tasks').select('count').limit(1);
     
