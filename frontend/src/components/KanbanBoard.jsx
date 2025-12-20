@@ -17,9 +17,42 @@ const KanbanBoard = () => {
   const [priorityFilter, setPriorityFilter] = useState('');
 
   const columns = [
-    { id: 'todo', title: 'To Do', status: 'todo' },
-    { id: 'in_progress', title: 'In Progress', status: 'in_progress' },
-    { id: 'done', title: 'Done', status: 'done' },
+    { 
+      id: 'todo', 
+      title: 'To Do', 
+      status: 'todo',
+      subtitle: 'Ready to start',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      color: 'green'
+    },
+    { 
+      id: 'in_progress', 
+      title: 'In Progress', 
+      status: 'in_progress',
+      subtitle: 'Currently working',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      color: 'orange'
+    },
+    { 
+      id: 'done', 
+      title: 'Done', 
+      status: 'done',
+      subtitle: 'Completed tasks',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        </svg>
+      ),
+      color: 'purple'
+    },
   ];
 
   useEffect(() => {
@@ -143,21 +176,33 @@ const KanbanBoard = () => {
 
   const totalTasks = tasks.length;
   const filteredCount = filteredTasks.length;
+  const completedTasks = tasks.filter(t => t.status === 'done').length;
+  const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="space-y-4 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-          <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">Kanban Board</h2>
-          <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-            <span className="text-xs sm:text-sm text-gray-500">
-              {filteredCount} of {totalTasks} {totalTasks === 1 ? 'task' : 'tasks'}
-            </span>
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Kanban Board</h2>
+          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                {totalTasks} Tasks
+              </span>
+              <span className="px-3 py-1.5 bg-white text-gray-700 rounded-full text-sm font-medium border border-gray-200">
+                {progressPercentage}% Progress
+              </span>
+            </div>
             <button
               onClick={handleCreateTask}
-              className="btn btn-primary text-sm sm:text-base flex-1 sm:flex-none"
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 flex-1 sm:flex-none justify-center"
             >
-              + New Task
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              New Task
             </button>
           </div>
         </div>
@@ -176,13 +221,31 @@ const KanbanBoard = () => {
           {columns.map((column) => {
             const columnTasks = getTasksByStatus(column.status);
             const taskCount = columnTasks.length;
+            const colorClasses = {
+              green: 'bg-green-100 text-green-700 border-green-200',
+              orange: 'bg-orange-100 text-orange-700 border-orange-200',
+              purple: 'bg-purple-100 text-purple-700 border-purple-200'
+            };
+            const iconBgClasses = {
+              green: 'bg-green-500',
+              orange: 'bg-orange-500',
+              purple: 'bg-purple-500'
+            };
 
             return (
               <div key={column.id} className="flex flex-col">
-                <div className="bg-gray-50 rounded-t-lg px-4 py-3 border-b border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-700">{column.title}</h3>
-                    <span className="bg-gray-200 text-gray-700 text-xs font-medium px-2 py-1 rounded-full">
+                <div className={`bg-white rounded-lg px-4 py-3 border-b-2 ${colorClasses[column.color].split(' ')[2]}`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <div className={`${iconBgClasses[column.color]} rounded-lg p-1.5 text-white`}>
+                        {column.icon}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900 text-lg">{column.title}</h3>
+                        <p className="text-xs text-gray-500">{column.subtitle}</p>
+                      </div>
+                    </div>
+                    <span className={`${colorClasses[column.color].split(' ')[0]} ${colorClasses[column.color].split(' ')[1]} text-xs font-semibold px-2.5 py-1 rounded-full`}>
                       {taskCount}
                     </span>
                   </div>
@@ -193,7 +256,7 @@ const KanbanBoard = () => {
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className={`bg-gray-50 rounded-b-lg p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] max-h-[500px] sm:max-h-[600px] overflow-y-auto ${
+                className={`bg-gray-50 rounded-b-lg p-3 sm:p-4 min-h-[300px] sm:min-h-[400px] max-h-[500px] sm:max-h-[600px] overflow-y-auto transition-colors ${
                   snapshot.isDraggingOver ? 'bg-gray-100' : ''
                 }`}
               >
