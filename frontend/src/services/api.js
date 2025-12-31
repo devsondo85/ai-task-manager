@@ -25,13 +25,36 @@ api.interceptors.response.use(
 export const tasksAPI = {
   // Get all tasks
   getAll: async (filters = {}) => {
-    const { status, priority } = filters;
-    const params = new URLSearchParams();
-    if (status) params.append('status', status);
-    if (priority) params.append('priority', priority);
-    
-    const response = await api.get(`/tasks?${params.toString()}`);
-    return response.data;
+    try {
+      const { status, priority } = filters;
+      const params = new URLSearchParams();
+      if (status) params.append('status', status);
+      if (priority) params.append('priority', priority);
+      
+      const response = await api.get(`/tasks?${params.toString()}`);
+      
+      // Handle different response structures
+      if (response.data && response.data.tasks) {
+        return response.data;
+      } else if (Array.isArray(response.data)) {
+        return { tasks: response.data, count: response.data.length };
+      } else if (response.data && response.data.error) {
+        throw new Error(response.data.error.message || response.data.error || 'Failed to fetch tasks');
+      } else {
+        return { tasks: [], count: 0 };
+      }
+    } catch (error) {
+      // Re-throw with more context
+      if (error.response) {
+        const errorData = error.response.data;
+        if (errorData?.error?.message) {
+          throw new Error(errorData.error.message);
+        } else if (errorData?.error) {
+          throw new Error(typeof errorData.error === 'string' ? errorData.error : 'Failed to fetch tasks');
+        }
+      }
+      throw error;
+    }
   },
 
   // Get single task

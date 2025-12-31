@@ -27,7 +27,12 @@ const TaskList = () => {
       const response = await tasksAPI.getAll();
       setTasks(response.tasks || []);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to fetch tasks');
+      // Handle different error formats
+      const errorMessage = err.message || 
+                          err.response?.data?.error?.message || 
+                          err.response?.data?.error || 
+                          'Failed to fetch tasks. Please check your connection and try again.';
+      setError(errorMessage);
       console.error('Error fetching tasks:', err);
     } finally {
       setLoading(false);
