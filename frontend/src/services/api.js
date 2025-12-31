@@ -1,14 +1,25 @@
 import axios from 'axios';
 
-// Use environment variable if provided, otherwise use relative path for dev or empty for production
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : '');
+// Use environment variable if provided, otherwise use relative path for dev or backend URL for production
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.DEV ? '/api' : 'https://ai-task-manager-mauve-three.vercel.app/api');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 second timeout
 });
+
+// Add request interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('API Error:', error);
+    return Promise.reject(error);
+  }
+);
 
 // Tasks API
 export const tasksAPI = {
